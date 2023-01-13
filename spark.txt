@@ -1,0 +1,41 @@
+//создаем датафрейм
+
+df = (
+spark.read
+.option('header', True)
+.option('InterSchema', True)
+.csv('file/owid-covid-data.csv')
+)
+
+df.printSchema()
+
+
+
+//задание 1
+
+df_percent = df.select(df['iso_code'], df['location'], (df['total_cases'] / 100).alias('percent')).where(df['date'] == '2021-03-31')
+
+df_percent.orderBy(df_percent['percent'].desc()).limit(15).show()
+ 
+
+
+//задание 2
+
+df_last = df.select(df['date'], df['location'], df['new_cases']).where(df['date'].between('2021-03-29', '2021-03-31'))
+
+df_sum = df_last.groupBy(df_last['location'], df_last['new_cases']).sum()
+
+df_sum.orderBy(df_sum['new_cases'].desc()).limit(10).show()
+
+
+
+//задание 3
+
+df_ru = df.select(df['date'], df['location'], df['new_cases']).where(df['location'] == 'Russia')
+
+w = Window.partitionBy(df_ru['location']).orderBy(df_ru['date'])
+
+df_lag = df_ru.withColumn('old_cases', lag(df_ru['new_cases'], 1).over(w))
+
+df_lag.select(df_lag['date'], df_lag['new_cases'], df_lag['old_cases'], (df_lag['new_cases'] - df_lag['old_cases']).alias('delta')).show()
+
