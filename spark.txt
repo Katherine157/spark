@@ -1,0 +1,49 @@
+//создаем датафрейм
+
+df = (
+spark.read
+.option('header', True)
+.option('InterSchema', True)
+.csv('file/owid-covid-data.csv')
+)
+
+df.printSchema()
+
+
+
+//задание 1
+
+df_percent = df.select(df['iso_code'], df['location'], (df['total_cases'] / df['population'] * 100).alias('percent')).where(df['date'] == '2021-03-31')
+
+df_percent.orderBy(df_percent['percent'].desc()).filter((df_percent['location'] != 'Africa') & (df_percent['location'] != 'Europe') & (df_percent['location'] != 'Asia') & (df_percent['location'] != 'World')).limit(15).show()
+ 
+
+
+//задание 2
+
+df_last = df.select(df['date'], df['location'], df['new_cases']).where(df['date'].between('2021-03-29', '2021-03-31'))
+
+df_filter = df_last.select(df_last['date'], df_last['location'].alias('loc'), df_last['new_cases']).filter((df_last['location'] != 'Africa') & (df_last['location'] != 'Europe') & (df_last['location'] != 'Asia') & (df_last['location'] != 'World'))
+
+df_max = df.groupBy(df['location']).agg(max(df['new_cases']).alias('max_val'))
+
+df_join = df_max.join(df_filter, df_max['max_val'] == df_filter['new_cases'])
+
+df_join.select(df_join['date'], df_join['location'], df_join['max_val']).orderBy(df_join['max_val'].desc()).limit(10).show()
+
+
+
+//задание 3
+
+df_ru = df.select(df['date'], df['location'], df['new_cases']).where(df['location'] == 'Russia')
+
+df_date = df_ru.select(df_ru['date'], df_ru['location'], df_ru['new_cases']).where(df_ru['date'].between('2020-03-22', '2020-03-31'))
+
+w = Window.partitionBy(df_ru['location']).orderBy(df_ru['date'])
+
+df_lag = df_date.withColumn('old_cases', lag(df_date['new_cases'], 1).over(w))
+
+df_lag.select(df_lag['date'], df_lag['new_cases'], df_lag['old_cases'], (df_lag['new_cases'] - df_lag['old_cases']).alias('delta')).orderBy(df_lag['date']).show()
+
+
+
