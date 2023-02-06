@@ -21,7 +21,7 @@ df_percent.orderBy(df_percent['percent'].desc()).filter((df_percent['location'] 
 
 //задание 2
 
-df_last = df.select(df['date'], df['location'], df['new_cases']).where(df['date'].between('2021-03-29', '2021-03-31'))
+df_last = df.select(df['date'], df['location'], df['new_cases']).where(df['date'].between('2021-03-24', '2021-03-31'))
 
 df_filter = df_last.select(df_last['date'], df_last['location'].alias('loc'), df_last['new_cases']).filter((df_last['location'] != 'Africa') & (df_last['location'] != 'Europe') & (df_last['location'] != 'Asia') & (df_last['location'] != 'World'))
 
