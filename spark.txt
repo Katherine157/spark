@@ -3,7 +3,7 @@
 df = (
 spark.read
 .option('header', True)
-.option('InterSchema', True)
+.option('InferSchema', True)
 .csv('file/owid-covid-data.csv')
 )
 
