@@ -25,7 +25,7 @@ df_last = df.select(df['date'], df['location'], df['new_cases']).where(df['date'
 
 df_filter = df_last.select(df_last['date'], df_last['location'].alias('loc'), df_last['new_cases']).filter((df_last['location'] != 'Africa') & (df_last['location'] != 'Europe') & (df_last['location'] != 'Asia') & (df_last['location'] != 'World'))
 
-df_max = df.groupBy(df['location']).agg(max(df['new_cases']).alias('max_val'))
+df_max = df_last.groupBy(df_last['location']).agg(max(df_last['new_cases']).alias('max_val'))
 
 df_join = df_max.join(df_filter, df_max['max_val'] == df_filter['new_cases'])
 
