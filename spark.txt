@@ -23,9 +23,9 @@ df_percent.orderBy(df_percent['percent'].desc()).filter((df_percent['location'] 
 
 df_last = df.select(df['date'], df['location'], df['new_cases']).where(df['date'].between('2021-03-24', '2021-03-31'))
 
-df_filter = df_last.select(df_last['date'], df_last['location'].alias('loc'), df_last['new_cases']).filter((df_last['location'] != 'Africa') & (df_last['location'] != 'Europe') & (df_last['location'] != 'Asia') & (df_last['location'] != 'World'))
+df_filter = df_last.select(df_last['date'], df_last['location'].alias("locations"), df_last['new_cases']).filter((df_last['location'] != 'Africa') & (df_last['location'] != 'Europe') & (df_last['location'] != 'Asia') & (df_last['location'] != 'World') & (df_last['location'] != 'European Union') & (df_last['location'] != 'South America') & (df_last['location'] != 'North America'))
 
-df_max = df_last.groupBy(df_last['location']).agg(max(df_last['new_cases']).alias('max_val'))
+df_max = df_filter.groupBy(df_filter['locations'].alias("location")).agg(max(df_filter['new_cases']).alias('max_val'))
 
 df_join = df_max.join(df_filter, df_max['max_val'] == df_filter['new_cases'])
 
